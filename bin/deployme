@@ -1,0 +1,5 @@
+#!/bin/sh
+
+SLUG='cozy-konnector-hellobank'
+echo "Deploy slug : ${SLUG}"
+git-directory-deploy --directory build/ --branch build --repo=git@github.com:Benoit485/${SLUG}.git
