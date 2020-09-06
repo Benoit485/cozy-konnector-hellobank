@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: login.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: login.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>// LOGIN
+
+// Require
+const { log, errors } = require('cozy-konnector-libs')
+
+// Require Browser
+const { By, Key, until } = require('selenium-webdriver')
+
+// Require in local
+const keypad = require('./keypad')
+const helpers = require('./helpers')
+
+// Vars
+const timeoutSeconds = 60 // timeout (in seconds)
+const titleWhenConnected = 'espace-client'
+
+/**
+ * This function initiates a connection on the HelloBank website.
+ *
+ * @param browser
+ * @param {string} urlLogin
+ * @param {string} username
+ * @param {string} password
+ * @see {@link https://github.com/konnectors/libs/blob/master/packages/cozy-konnector-libs/docs/api.md#module_signin}
+ * @returns {boolean} Returns true if authentication is successful, else false
+ */
+async function authenticate(browser, urlLogin, username, password) {
+  try {
+    // timeout (in micro seconds)
+    let timeoutMicroSeconds = timeoutSeconds * 1000
+
+    log('info', `Open in browser : ${urlLogin}`)
+
+    // open browser
+    await browser.get(urlLogin)
+
+    // wait some seconds for let javascript load everythinbg
+    await browser.sleep(helpers.secondsToMs(4))
+
+    // wait for find 'username' field
+    await browser.wait(
+      until.elementLocated(By.id('username')),
+      timeoutMicroSeconds
+    )
+
+    // put username in field
+    await browser.findElement(By.id('username')).sendKeys(username, Key.RETURN)
+
+    // wait for keyboard is active
+    await browser.wait(
+      until.elementLocated(By.css('#secret-nbr-keyboard a')),
+      timeoutMicroSeconds
+    )
+
+    // get link with keypad image
+    const linkBackground = (await browser
+      .findElement(By.id('secret-nbr-keyboard'))
+      .getCssValue('background-image'))
+      .substr(5)
+      .replace('")', '')
+
+    const numbersImagesToClickForPass = await keypad.getNumbersImagesToClickForPass(
+      linkBackground,
+      password
+    )
+
+    // for every key on pass (6 key)
+    for (
+      let i = 0, lengthPassword = numbersImagesToClickForPass.length;
+      i &lt; lengthPassword;
+      i++
+    ) {
+      // for every number of pass click on good image
+      await browser
+        .findElement(
+          By.css(
+            `#secret-nbr-keyboard a:nth-child(${numbersImagesToClickForPass[i]})`
+          )
+        )
+        .click()
+    }
+
+    // waiting for let js inside page see for we finish to write pass and active button "connect"
+    await browser.sleep(helpers.secondsToMs(1))
+
+    // wait to find button
+    await browser.wait(
+      until.elementLocated(By.id('submitIdent')),
+      timeoutMicroSeconds
+    )
+
+    // click on connect button
+    await browser.findElement(By.id('submitIdent')).click()
+
+    // we wait for find title before timeout is finished
+    await browser.wait(until.titleIs(titleWhenConnected), timeoutMicroSeconds)
+
+    await browser.sleep(helpers.secondsToMs(3))
+
+    const sourceHtml = await browser.getPageSource()
+
+    if (
+      sourceHtml.indexOf(
+        'Vous avez atteint le seuil de &lt;span>100&amp;nbsp;connexions&lt;/span> avec le même code secret.'
+      ) > -1
+    ) {
+      log('critical', errors.USER_ACTION_NEEDED_CHANGE_PASSWORD)
+      throw new Error()
+    }
+  } catch (e) {
+    throw new Error(errors.LOGIN_FAILED)
+  }
+}
+
+module.exports = {
+  authenticate
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#authenticate">authenticate</a></li><li><a href="global.html#fetchBalances">fetchBalances</a></li><li><a href="global.html#findKey">findKey</a></li><li><a href="global.html#findMetadataForCreditOperation">findMetadataForCreditOperation</a></li><li><a href="global.html#findMetadataForDebitOperation">findMetadataForDebitOperation</a></li><li><a href="global.html#getAccountTypeFromFamily">getAccountTypeFromFamily</a></li><li><a href="global.html#getBankName">getBankName</a></li><li><a href="global.html#getImageBuffer">getImageBuffer</a></li><li><a href="global.html#getNumbersImagesToClickForPass">getNumbersImagesToClickForPass</a></li><li><a href="global.html#getRandomNumber">getRandomNumber</a></li><li><a href="global.html#imageCompareWrapper">imageCompareWrapper</a></li><li><a href="global.html#parseDate">parseDate</a></li><li><a href="global.html#parseDateDocument">parseDateDocument</a></li><li><a href="global.html#saveBalances">saveBalances</a></li><li><a href="global.html#secondsToMs">secondsToMs</a></li><li><a href="global.html#start">start</a></li><li><a href="global.html#stop">stop</a></li><li><a href="global.html#wait">wait</a></li><li><a href="global.html#waitUntil">waitUntil</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.5</a> on Sun Sep 06 2020 16:24:18 GMT+0200 (GMT+02:00)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

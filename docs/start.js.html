@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: start.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: start.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>// LIB
+
+// Require
+const { log, cozyClient, categorize } = require('cozy-konnector-libs')
+const omit = require('lodash/omit')
+
+// Local require
+const browserLib = require('./browser')
+const login = require('./login')
+const accounts = require('./accounts')
+const operations = require('./operations')
+const balancesLib = require('./balances')
+const documents = require('./documents')
+
+const doctypes = require('cozy-doctypes')
+const {
+  Document,
+  BankAccount,
+  BankTransaction,
+  BankingReconciliator
+} = doctypes
+
+// Cozy register
+Document.registerClient(cozyClient)
+const reconciliator = new BankingReconciliator({ BankAccount, BankTransaction })
+
+// Urls
+const urlBase = 'https://www.hellobank.fr'
+const url = {
+  login: urlBase + '/fr/client',
+  json: {
+    accounts: urlBase + '/rop2-wspl/rest/mouvements',
+    mouvements: urlBase + '/rop2-wspl/rest/mouvements',
+    cards: urlBase + '/udcarte-wspl/rest/listeDetailCartes',
+    files: urlBase + '/demat-wspl/rest/rechercheCriteresDemat'
+  }
+  //Accounts: 'https://www.hellobank.fr/serviceinfosclient-wspl/rpc/InfosClient?modeAppel=0&amp;_=1589748259573'
+  //https://www.hellobank.fr/profilclient-wspl/rpc/getConsultationPDF
+}
+
+/**
+ * The start function is run by the BaseKonnector instance only when it got all the account
+ * information (fields). When you run this connector yourself in "standalone" mode or "dev" mode,
+ * the account information come from ./konnector-dev-config.json file
+ * @param {object} fields
+ */
+async function start(fields) {
+  log('info', 'Waiting browser ...')
+  const browser = await browserLib.start()
+  log('info', 'Successfully browser opened')
+
+  log('info', 'Authenticating ...')
+  await login.authenticate(browser, url.login, fields.login, fields.password)
+  log('info', 'Successfully logged in')
+
+  log('info', 'Get bank accounts list')
+  await accounts.getList(browser, url.json.accounts)
+
+  log('info', 'Parsing list of bank accounts')
+  const bankAccounts = await accounts.parse()
+  log('info', `Find ${bankAccounts.length} account(s) :`)
+  log('info', bankAccounts)
+
+  log('info', 'Retrieve all informations for each bank accounts found')
+  const operationsRaw = await operations.get(
+    browser,
+    url.json.mouvements,
+    bankAccounts
+  )
+  const allOperations = operations.parse(operationsRaw)
+
+  log('info', 'Categorize the list of transactions')
+  const categorizedTransactions = await categorize(allOperations)
+
+  const { accounts: savedAccounts } = await reconciliator.save(
+    bankAccounts.map(x =>
+      omit(x, [
+        'currency',
+        'typeAccount',
+        'link',
+        'children',
+        'idAccountParent',
+        'idAccount'
+      ])
+    ),
+    categorizedTransactions
+  )
+
+  log(
+    'info',
+    'Retrieve the balance histories and adds the balance of the day for each bank accounts'
+  )
+  const balances = await balancesLib.fetchBalances(savedAccounts)
+
+  log('info', 'Save the balance histories')
+  await balancesLib.saveBalances(balances)
+
+  log('info', 'Save all documents')
+  const documentsList = await documents.get(browser, url.json.files)
+  const documentsLinks = await documents.parse(documentsList)
+  const documentsStream = await documents.getStreams(browser, documentsLinks)
+  await documents.save(documentsStream, fields)
+
+  log('info', 'Close browser and driver (firefox / geckodriver)')
+  await browserLib.stop()
+}
+
+module.exports = {
+  start
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#authenticate">authenticate</a></li><li><a href="global.html#fetchBalances">fetchBalances</a></li><li><a href="global.html#findKey">findKey</a></li><li><a href="global.html#findMetadataForCreditOperation">findMetadataForCreditOperation</a></li><li><a href="global.html#findMetadataForDebitOperation">findMetadataForDebitOperation</a></li><li><a href="global.html#getAccountTypeFromFamily">getAccountTypeFromFamily</a></li><li><a href="global.html#getBankName">getBankName</a></li><li><a href="global.html#getImageBuffer">getImageBuffer</a></li><li><a href="global.html#getNumbersImagesToClickForPass">getNumbersImagesToClickForPass</a></li><li><a href="global.html#getRandomNumber">getRandomNumber</a></li><li><a href="global.html#imageCompareWrapper">imageCompareWrapper</a></li><li><a href="global.html#parseDate">parseDate</a></li><li><a href="global.html#parseDateDocument">parseDateDocument</a></li><li><a href="global.html#saveBalances">saveBalances</a></li><li><a href="global.html#secondsToMs">secondsToMs</a></li><li><a href="global.html#start">start</a></li><li><a href="global.html#stop">stop</a></li><li><a href="global.html#wait">wait</a></li><li><a href="global.html#waitUntil">waitUntil</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.5</a> on Sun Sep 06 2020 16:24:18 GMT+0200 (GMT+02:00)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
