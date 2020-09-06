@@ -3,6 +3,7 @@
 // Require
 const { log, saveFiles } = require('cozy-konnector-libs')
 const moment = require('moment')
+const Readable = require('stream').Readable
 
 // Require in local
 const helpers = require('./helpers')
@@ -153,12 +154,13 @@ function getStreams(browser, documentsList) {
 
         //log('debug', docString, 'docString')
 
-        const docStream = Buffer.from(
+        const docBuffer = Buffer.from(
           docString.replace('data:application/pdf;base64,', ''),
           'base64'
         )
 
         //log('debug', docStream, 'docStream')
+        const docStream = Readable.from(docBuffer)
 
         resolve({ filestream: docStream, ...doc })
       })
@@ -167,7 +169,7 @@ function getStreams(browser, documentsList) {
 }
 
 async function save(files, fields) {
-  //log('debug', files, 'files')
+  log('debug', files, 'files')
   log('debug', `Check for save ${files.length} documents`)
 
   return saveFiles(files, fields, {
@@ -176,7 +178,9 @@ async function save(files, fields) {
     // this._account not exist when use yarn standalone
     sourceAccount:
       this._account !== undefined ? this._account._id : fields.login,
-    sourceAccountIdentifier: fields.login
+    sourceAccountIdentifier: fields.login,
+    // force mime to pdf, because it's returned application/octet-stream by default
+    contentType: 'application/pdf'
   })
 }
 
