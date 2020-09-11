@@ -12,7 +12,6 @@
     "banking"
   ],
   "frequency" : "daily",
-  "time_interval" : "21600",
   "fields": {
     "login": {
       "type": "text"
