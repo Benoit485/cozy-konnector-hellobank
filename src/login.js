@@ -13,6 +13,7 @@ const helpers = require('./helpers')
 // Vars
 const timeoutSeconds = 60 // timeout (in seconds)
 const titleWhenConnected = 'espace-client'
+let error = null
 
 /**
  * This function initiates a connection on the HelloBank website.
@@ -101,13 +102,29 @@ async function authenticate(browser, urlLogin, username, password) {
 
     if (
       sourceHtml.indexOf(
+        'Vous avez atteint le seuil de <span>80&nbsp;connexions</span> avec le même code secret.'
+      ) > -1
+    ) {
+      error = errors.USER_ACTION_NEEDED_CHANGE_PASSWORD
+      throw new Error()
+    } else if (
+      sourceHtml.indexOf(
         'Vous avez atteint le seuil de <span>100&nbsp;connexions</span> avec le même code secret.'
       ) > -1
     ) {
-      log('critical', errors.USER_ACTION_NEEDED_CHANGE_PASSWORD)
+      error = errors.USER_ACTION_NEEDED_CHANGE_PASSWORD
+      throw new Error()
+    } else if (
+      sourceHtml.indexOf(
+        `Tous les  <span class="bold">90 jours </span>calendaires, réalisez une authentification forte pour accéder en ligne à vos comptes.`
+      ) > -1
+    ) {
+      error = errors.CHALLENGE_ASKED
       throw new Error()
     }
   } catch (e) {
+    if (error !== null) throw new Error(error)
+
     throw new Error(errors.LOGIN_FAILED)
   }
 }
