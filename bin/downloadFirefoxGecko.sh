@@ -14,4 +14,6 @@ mkdir -p  $PATHDIR \
 && touch $PATHDIR/geckodriver-v0.27.0-linux64.version \
 && rm $PATHDIR/firefox-80.0.1-linux64.tar.bz2 \
 && touch $PATHDIR/firefox-80.0.1-linux64.version \
+&& apt update \
+&& apt install -y libgtk-3-0 libx11-xcb1 libdbus-glib-1-2 libxt6 \
 && echo "OK"
