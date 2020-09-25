@@ -5,10 +5,23 @@ What's required ?
 ------------
 
 Your require firefox browser and geckodriver inside :
+
 `/usr/local/bin/cozy-browser/geckodriver`
+
 `/usr/local/bin/cozy-browser/firefox-bin`
 
+and require some library from Debian source :
+
+`libgtk-3-0`
+
+`libx11-xcb1`
+
+`libdbus-glib-1-2`
+
+`libxt6`
+
 You can install them by this command :
+
 `sudo wget https://raw.githubusercontent.com/Benoit485/cozy-konnector-hellobank/master/bin/downloadFirefoxGecko.sh -O - | sh`
 
 What's Cozy ?
