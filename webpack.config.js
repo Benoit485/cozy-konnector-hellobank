@@ -35,6 +35,9 @@ module.exports = {
     path: path.join(__dirname, 'build'),
     filename: 'index.js'
   },
+  externals: {
+    canvas: 'commonjs canvas'
+  },
   plugins: [
     new CopyPlugin([
       { from: 'manifest.konnector' },
