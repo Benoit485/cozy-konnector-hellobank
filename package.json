@@ -50,7 +50,7 @@
     "cozy-konnector-libs": "^4.34.5",
     "moment": "^2.27.0",
     "pngjs": "^5.0.0",
-    "resemblejs": "^3.2.5",
+    "nodejs-resemble": "^0.3.0",
     "selenium-webdriver": "^4.0.0-alpha.7"
   },
   "devDependencies": {
