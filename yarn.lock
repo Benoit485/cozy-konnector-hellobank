@@ -4347,6 +4347,14 @@ node-libs-browser@^2.2.1:
     util "^0.11.0"
     vm-browserify "^1.0.1"
 
+nodejs-resemble@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/nodejs-resemble/-/nodejs-resemble-0.3.0.tgz#5bb4103af951db36884aa97e043017f18b734710"
+  integrity sha512-VAxNDghy2Qa9MJ2jmoC19LQCk1FdBcC6ZV+cgY4+MNKfn+Qb8fc9toG6IhNVLPGOxrSlwl26aTzU3vrurZ/j3w==
+  dependencies:
+    jpeg-js "0.2.0"
+    pngjs "^3.3.2"
+
 nopt@~4.0.1:
   version "4.0.3"
   resolved "https://registry.yarnpkg.com/nopt/-/nopt-4.0.3.tgz#a375cad9d02fd921278d954c2254d5aa57e15e48"
@@ -4836,10 +4844,10 @@ please-upgrade-node@^3.2.0:
   dependencies:
     semver-compare "^1.0.0"
 
-pngjs@3.2.0:
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/pngjs/-/pngjs-3.2.0.tgz#fc9fcea1a8a375da54a51148019d5abd41dbabde"
-  integrity sha1-/J/OoaijddpUpRFIAZ1avUHbq94=
+pngjs@^3.3.2:
+  version "3.4.0"
+  resolved "https://registry.yarnpkg.com/pngjs/-/pngjs-3.4.0.tgz#99ca7d725965fb655814eaf65f38f12bbdbf555f"
+  integrity sha512-NCrCHhWmnQklfH4MtJMRjZ2a8c80qXeMlQMv2uVp9ISJMTt562SbGd6n2oq0PaPgKm7Z6pL9E2UlLIhC+SHL3w==
 
 pngjs@^5.0.0:
   version "5.0.0"
@@ -5438,14 +5446,6 @@ requizzle@^0.2.3:
   integrity sha512-YanoyJjykPxGHii0fZP0uUPEXpvqfBDxWV7s6GKAiiOsiqhX6vHNyW3Qzdmqp/iq/ExbhaGbVrjB4ruEVSM4GQ==
   dependencies:
     lodash "^4.17.14"
-
-resemblejs-node@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/resemblejs-node/-/resemblejs-node-1.0.0.tgz#6a8226ef35eac383997454c7f0ba8f3db7565ddb"
-  integrity sha1-aoIm7zXqw4OZdFTH8LqPPbdWXds=
-  dependencies:
-    jpeg-js "0.2.0"
-    pngjs "3.2.0"
 
 resolve-cwd@^2.0.0:
   version "2.0.0"

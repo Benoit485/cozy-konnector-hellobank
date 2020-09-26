@@ -2,7 +2,7 @@
 
 // Require
 const { log, errors, requestFactory } = require('cozy-konnector-libs')
-const resemble = require('resemblejs-node')
+const resemble = require('nodejs-resemble')
 const PNG = require('pngjs').PNG
 
 // Request init with buffer
@@ -131,7 +131,9 @@ function getImageBuffer(linkImage) {
 function imageCompareWrapper(p1b64, p2b64, indexKey) {
   return new Promise(function(resolve, reject) {
     try {
-      resemble(p1b64)
+      const p1buffer = Buffer.from(p1b64.replace('data:image/png;base64,', ''), 'base64')
+
+      resemble(p1buffer)
         .compareTo(p2b64)
         .ignoreAntialiasing()
         .onComplete(r =>
