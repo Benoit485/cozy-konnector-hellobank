@@ -2,7 +2,7 @@
 
 // Require
 const { log, errors, requestFactory } = require('cozy-konnector-libs')
-const resemble = require('resemblejs')
+const resemble = require('resemblejs-node')
 const PNG = require('pngjs').PNG
 
 // Request init with buffer
