@@ -131,7 +131,10 @@ function getImageBuffer(linkImage) {
 function imageCompareWrapper(p1b64, p2b64, indexKey) {
   return new Promise(function(resolve, reject) {
     try {
-      const p1buffer = Buffer.from(p1b64.replace('data:image/png;base64,', ''), 'base64')
+      const p1buffer = Buffer.from(
+        p1b64.replace('data:image/png;base64,', ''),
+        'base64'
+      )
 
       resemble(p1buffer)
         .compareTo(p2b64)
